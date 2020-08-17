@@ -5,20 +5,21 @@ import {
   ParamsContext,
   RecorderState,
   method,
-} from '@vtex/api'
-import { Clients } from './clients'
-import { analytics } from './handlers/analytics'
+} from '@vtex/api';
+import { Clients } from './clients';
+import { analytics } from './handlers/analytics';
+import { productList } from './resolvers/product';
 
 // Create a LRU memory cache for the Status client.
 // The @vtex/api HttpClient respects Cache-Control headers and uses the provided cache.
-const memoryCache = new LRUCache<string, any>({ max: 5000 })
-metrics.trackCache('status', memoryCache)
+const memoryCache = new LRUCache<string, any>({ max: 5000 });
+metrics.trackCache('status', memoryCache);
 
 declare global {
-  type Context = ServiceContext<Clients, State>
+  type Context = ServiceContext<Clients, State>;
 
   interface State extends RecorderState {
-    code: number
+    code: number;
   }
 }
 
@@ -37,4 +38,11 @@ export default new Service<Clients, State, ParamsContext>({
       GET: [analytics],
     }),
   },
-})
+  graphql: {
+    resolvers: {
+      Query: {
+        productList,
+      },
+    },
+  },
+});
